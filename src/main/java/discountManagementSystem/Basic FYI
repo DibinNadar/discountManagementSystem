@@ -1,0 +1,119 @@
+Uncertain Points :
+1. Terms and conditions in ReadMe ?
+2. Transferable or customer tagged?
+3. Minimum amount to redeem?
+4.
+5.
+
+Data Points:
+1. Offer - Coupon/Voucher
+2. User
+3. Product
+4. Category
+5. Usage Data - Coupon Usage, Voucher usage and balance
+
+Rules:
+1. Maximum usage - customer specific (specific to Coupon and not Voucher)
+2. First x users - specific to Coupon and not Voucher
+3. Percentage discounts
+            - No limit
+            - Limit
+4. Remaining balance check for Vouchers
+5. Expiry for Vouchers based on the date of purchase
+6. Expiry for coupons
+7.
+
+Voucher Rules:
+1. Start, end date
+2.  Flat discount : Fixed amount, used till exhausted or expired
+3.
+4.
+5.
+
+Coupon Rules:
+1. Start, end date
+2. Fixed Number of uses, used till exhausted or expired
+3. Percentage discounts with an upper cap 
+4.
+5.
+
+AssignedWith View and a column in User!?!?!?
+ids 
+
+Good to have stuff:
+1. Make management greedy, premature cap on combined use
+2. Coupons applicable based on no. of previous transactions
+
+
+
+----------------------------------------------------------------------------------------------
+
+Name
+Age
+Date
+
+3 functions
+download a csv file containing random names
+run a random number generator, pick the corresponding line
+use that name and another random number for age
+use a random date generator code to get
+
+
+
+
+#
+# TABLE STRUCTURE FOR: Coupon
+#
+
+CREATE TABLE `Coupon` (
+  `couponId` int(9) unsigned NOT NULL,
+  `couponName` varchar(100) NOT NULL,
+  `percentageDiscount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `flatDiscount` int(11) NOT NULL,
+  `usageNo` int(11) NOT NULL DEFAULT -1,
+  `startDate` date NOT NULL,
+  `expiryDate` date NOT NULL,
+  `assignedTo` int(11) NOT NULL,
+  PRIMARY KEY (`couponId`),
+  UNIQUE KEY `flatDiscount` (`flatDiscount`),
+  UNIQUE KEY `flatDiscount_2` (`flatDiscount`),
+  UNIQUE KEY `couponId` (`couponId`)
+) 
+
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+#
+# TABLE STRUCTURE FOR: Voucher
+#
+
+CREATE TABLE `VoucherId` (
+  `voucherId` int(9) unsigned NOT NULL,
+  `voucherName` varchar(100) NOT NULL,
+  `percentageDiscount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `flatDiscount` int(11) NOT NULL,
+  `usageNo` int(11) NOT NULL DEFAULT -1,
+  `startDate` date NOT NULL,
+  `expiryDate` date NOT NULL,
+  `assignedTo` int(11) NOT NULL,
+  PRIMARY KEY (`voucherId`),
+  UNIQUE KEY `flatDiscount` (`flatDiscount`),
+  UNIQUE KEY `flatDiscount_2` (`flatDiscount`),
+  UNIQUE KEY `voucherId` (`voucherId`)
+);
+
+#
+# TABLE STRUCTURE FOR: Customer
+#
+
+CREATE TABLE `Customer` (
+  `cutomerId` int(9) unsigned NOT NULL,
+  `customerName` varchar(100) NOT NULL,
+  `moneySaved` varchar(255) NOT NULL,
+  KEY `cutomerId` (`cutomerId`)
+);
+
+
+
