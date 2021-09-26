@@ -15,18 +15,23 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+//@RequestMapping("/") Should do this probably
 public class CustomerController {
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;  // Ideally service layer between controller and repo
+
+    @Autowired
+    private CouponRepository couponRepository;
 
     private CustomerModelAssembler customerModelAssembler;
 
@@ -56,25 +61,14 @@ public class CustomerController {
                 linkTo(methodOn(CustomerController.class).getAll()).withSelfRel());
 
     }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Autowired
-    private CouponRepository couponRepository;
-
-    @GetMapping("/test")
-    public String test(){
-//    public List<Coupon> test(){
-
-        Customer customer = customerRepository.getById(333L);
-
-        List<Coupon> couponList =
-                new ArrayList<>(customer.getCoupons());
-
-        System.out.println(couponList.size());
-
-        return "couponList";
+    @PutMapping("customers/{customerId}/coupons/{couponId}")
+    Customer addCouponToCustomer(@PathVariable String couponId, @PathVariable Long customerId) {
+        Customer customer = customerRepository.findById(customerId).get();
+        Coupon coupon = couponRepository.findById(couponId).get();
+        customer.coupons.add(coupon);
+        return customerRepository.save(customer);
     }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @GetMapping("/customers/{customerId}")
     public EntityModel<Customer> getOne(@PathVariable Long customerId){
@@ -83,6 +77,15 @@ public class CustomerController {
                 .orElseThrow(()->new CustomerNotFoundException(customerId));
 
         return customerModelAssembler.toModel(customer);
+    }
+
+// TODO: Make it return Links
+    @GetMapping("customers/{customerId}/coupons")
+    public Collection<Coupon> getCustomerCoupons( @PathVariable Long customerId){
+        Customer customer = customerRepository.findById(customerId).get();
+        Collection<Coupon> coupons = customer.getCoupons();
+
+        return coupons;
     }
 
     @PostMapping("/customers")
@@ -102,6 +105,7 @@ public class CustomerController {
                 .map(customer -> {
                     customer.setCustomerId(newCustomer.getCustomerId());
                     customer.setName(newCustomer.getName());
+                    customer.setCoupons((Set<Coupon>) newCustomer.getCoupons());
                     return customerRepository.save(newCustomer);
                 })
                 .orElseGet(()->{

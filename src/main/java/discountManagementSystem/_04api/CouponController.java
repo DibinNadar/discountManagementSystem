@@ -80,11 +80,12 @@ public class CouponController {
         Coupon updatedCoupon = couponRepository.findById(couponId)
                 .map(coupon -> {
                     coupon.setCouponId(newCoupon.getCouponId());
-//                    coupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
+                    coupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
                     coupon.setUpperAmountLimit(newCoupon.getUpperAmountLimit());
                     coupon.setGlobalUsageLimit(newCoupon.getGlobalUsageLimit());
                     coupon.setStartDate(newCoupon.getStartDate());
                     coupon.setExpiryDate(newCoupon.getExpiryDate());
+                    coupon.setCustomers(newCoupon.getCustomers());
                     return couponRepository.save(newCoupon);
                 })
                 .orElseGet(()->{

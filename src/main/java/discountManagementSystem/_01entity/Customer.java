@@ -1,5 +1,7 @@
 package discountManagementSystem._01entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -26,15 +28,16 @@ public class Customer implements Serializable {
             inverseJoinColumns = {
                     @JoinColumn(name = "couponId", referencedColumnName = "couponId",
                             nullable = false, updatable = false)})
-    private Set<Coupon> coupons = new HashSet<>();  // TODO: are we sure about a hashSet??
+    public Set<Coupon> coupons = new HashSet<>();
 
 
     public Customer() {
     }
 
-    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name) {
+    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons) {
         this.customerId = customerId;
         this.name = name;
+        this.coupons = coupons;
     }
 
     public Long getCustomerId() {
@@ -68,7 +71,7 @@ public class Customer implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(customerId, name, coupons);
+        return Objects.hash(customerId, name);
     }
 
     @Override

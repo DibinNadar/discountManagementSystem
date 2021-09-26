@@ -1,5 +1,8 @@
 package discountManagementSystem._01entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -19,19 +22,21 @@ public class Coupon implements Serializable {
     private LocalDate startDate;
     private LocalDate expiryDate;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "coupons", fetch = FetchType.LAZY)
-    private Set<Customer> customers = new HashSet<>(); // TODO: are we sure about a hashSet??
+    private Set<Customer> customers = new HashSet<>();
 
     public Coupon() {
     }
 
-    public Coupon(String couponId, double percentageDiscount, Integer upperAmountLimit, Integer globalUsageLimit, LocalDate startDate, LocalDate expiryDate) {
+    public Coupon(String couponId, double percentageDiscount, Integer upperAmountLimit, Integer globalUsageLimit, LocalDate startDate, LocalDate expiryDate, Set<Customer> customers) {
         this.couponId = couponId;
         this.percentageDiscount = percentageDiscount;
         this.upperAmountLimit = upperAmountLimit;
         this.globalUsageLimit = globalUsageLimit;
         this.startDate = startDate;
         this.expiryDate = expiryDate;
+        this.customers = customers;
     }
 
     public String getCouponId() {
@@ -70,6 +75,12 @@ public class Coupon implements Serializable {
     public void setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
     }
+    public Set<Customer> getCustomers() {
+        return customers;
+    }
+    public void setCustomers(Set<Customer> customers) {
+        this.customers = customers;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -77,16 +88,17 @@ public class Coupon implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Coupon coupon = (Coupon) o;
         return Double.compare(coupon.percentageDiscount, percentageDiscount) == 0 &&
-                couponId.equals(coupon.couponId) &&
+                Objects.equals(couponId, coupon.couponId) &&
                 Objects.equals(upperAmountLimit, coupon.upperAmountLimit) &&
                 Objects.equals(globalUsageLimit, coupon.globalUsageLimit) &&
                 Objects.equals(startDate, coupon.startDate) &&
-                Objects.equals(expiryDate, coupon.expiryDate);
+                Objects.equals(expiryDate, coupon.expiryDate) &&
+                Objects.equals(customers, coupon.customers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(couponId, percentageDiscount, upperAmountLimit, globalUsageLimit, startDate, expiryDate);
+        return Objects.hash(couponId, percentageDiscount, upperAmountLimit, globalUsageLimit, startDate, expiryDate, customers);
     }
 
     @Override
@@ -98,6 +110,7 @@ public class Coupon implements Serializable {
                 ", globalUsageLimit=" + globalUsageLimit +
                 ", startDate=" + startDate +
                 ", expiryDate=" + expiryDate +
+                ", customers=" + customers +
                 '}';
     }
 }
