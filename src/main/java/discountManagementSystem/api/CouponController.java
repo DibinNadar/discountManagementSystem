@@ -1,10 +1,10 @@
-package discountManagementSystem._04api;
+package discountManagementSystem.api;
 
-import discountManagementSystem._01entity.Customer;
 import discountManagementSystem.assembler.CouponModelAssembler;
-import discountManagementSystem._02repository.CouponRepository;
-import discountManagementSystem._01entity.Coupon;
-import discountManagementSystem.exception.CouponNotFoundException;
+import discountManagementSystem.repository.CouponRepository;
+import discountManagementSystem.entity.Coupon;
+import discountManagementSystem.customException.exception.CouponNotFoundException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -54,7 +54,6 @@ public class CouponController {
 
     }
 
-
     @GetMapping("/coupons/{couponId}")
     public EntityModel<Coupon> getOne(@PathVariable String couponId){
 
@@ -69,8 +68,8 @@ public class CouponController {
 
         EntityModel<Coupon> entityModel = couponAssembler.toModel(couponRepository.save(newCoupon));
 
-        return ResponseEntity.
-                created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
 
@@ -79,13 +78,7 @@ public class CouponController {
 
         Coupon updatedCoupon = couponRepository.findById(couponId)
                 .map(coupon -> {
-                    coupon.setCouponId(newCoupon.getCouponId());
-                    coupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
-                    coupon.setUpperAmountLimit(newCoupon.getUpperAmountLimit());
-                    coupon.setGlobalUsageLimit(newCoupon.getGlobalUsageLimit());
-                    coupon.setStartDate(newCoupon.getStartDate());
-                    coupon.setExpiryDate(newCoupon.getExpiryDate());
-                    coupon.setCustomers(newCoupon.getCustomers());
+                    BeanUtils.copyProperties(newCoupon,coupon);
                     return couponRepository.save(newCoupon);
                 })
                 .orElseGet(()->{
@@ -107,7 +100,5 @@ public class CouponController {
 
         return ResponseEntity.noContent().build();
     }
-
-
 
 }

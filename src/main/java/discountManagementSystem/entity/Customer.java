@@ -1,14 +1,11 @@
-package discountManagementSystem._01entity;
+package discountManagementSystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity (name = "customer")
 public class Customer implements Serializable {
@@ -18,7 +15,7 @@ public class Customer implements Serializable {
     @NotEmpty (message = "Customer Name is mandatory")
     private String name;
 
-
+    @JsonIgnore  // TODO: CHECK
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "customers_coupons",
             joinColumns = {
@@ -33,6 +30,15 @@ public class Customer implements Serializable {
 
     public Customer() {
     }
+// TODO: copy Const
+//    public Customer(Customer source) {
+//        customerId = source.customerId;
+//        name = source.name;
+//        coupons = source.coupons;
+////        for (Coupon sourceCoupon : source.coupons) {
+////            coupons.add(new Coupon(sourceCoupon));
+////        }
+//    }
 
     public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons) {
         this.customerId = customerId;

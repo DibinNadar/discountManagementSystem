@@ -1,4 +1,4 @@
-//package discountManagementSystem._01entity;
+//package discountManagementSystem.entity;
 //
 //import javax.persistence.Entity;
 //import javax.persistence.Id;

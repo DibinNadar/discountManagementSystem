@@ -1,11 +1,12 @@
-package discountManagementSystem._04api;
+package discountManagementSystem.api;
 
-import discountManagementSystem._01entity.Coupon;
-import discountManagementSystem._02repository.CouponRepository;
+import discountManagementSystem.entity.Coupon;
+import discountManagementSystem.entity.Customer;
+import discountManagementSystem.repository.CouponRepository;
+import discountManagementSystem.repository.CustomerRepository;
 import discountManagementSystem.assembler.CustomerModelAssembler;
-import discountManagementSystem._02repository.CustomerRepository;
-import discountManagementSystem._01entity.Customer;
-import discountManagementSystem.exception.CustomerNotFoundException;
+import discountManagementSystem.customException.exception.CustomerNotFoundException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -14,17 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-//@RequestMapping("/") Should do this probably
 public class CustomerController {
 
     @Autowired
@@ -65,8 +63,9 @@ public class CustomerController {
     @PutMapping("customers/{customerId}/coupons/{couponId}")
     Customer addCouponToCustomer(@PathVariable String couponId, @PathVariable Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
-        Coupon coupon = couponRepository.findById(couponId).get();
-        customer.coupons.add(coupon);
+        Coupon customerCoupon = new Coupon();
+        BeanUtils.copyProperties(couponRepository.findById(couponId).get(),customerCoupon);
+        customer.coupons.add(customerCoupon);
         return customerRepository.save(customer);
     }
 
@@ -82,13 +81,55 @@ public class CustomerController {
 // TODO: Make it return Links
     @GetMapping("customers/{customerId}/coupons")
     public Collection<Coupon> getCustomerCoupons( @PathVariable Long customerId){
-        Customer customer = customerRepository.findById(customerId).get();
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()->new CustomerNotFoundException(customerId));
         Collection<Coupon> coupons = customer.getCoupons();
-
         return coupons;
     }
 
-    @PostMapping("/customers")
+    // TODO: AHH the Mistake, mostly to be added to Voucher
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    @PutMapping("customers/{customerId}/customer_coupons/{couponId}")
+//    HttpStatus updateCustomerCoupon(@Valid @RequestBody Coupon newCoupon,  @PathVariable Long customerId , @PathVariable String couponId){
+////    ResponseEntity<?> updateCustomerCoupon(@Valid @RequestBody Coupon newCoupon,  @PathVariable Long customerId , @PathVariable String couponId){
+//
+//        // where do I put this findByCustomerAndCouponId () and how do I use it
+//        // basically maintain unique customer coupon records
+//        int i =0;
+//        Collection<Coupon> coupons = customerRepository.findById(customerId).get().getCoupons();
+//
+//
+//        Coupon updatedCoupon = null;
+//        for (Coupon c : coupons ){
+//            if (c.getCouponId().equals(couponId)){
+//                updatedCoupon = c;
+//                coupons.remove(c);
+//            }
+//        }
+//
+//        if (updatedCoupon!= null && updatedCoupon.getCouponId().equals(couponId)){
+////            BeanUtils.copyProperties(newCoupon,updatedCoupon);  // TODO: Test it
+//            updatedCoupon.setCouponId(newCoupon.getCouponId());
+//            updatedCoupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
+//            updatedCoupon.setUpperAmountLimit(newCoupon.getUpperAmountLimit());
+//            updatedCoupon.setGlobalUsageLimit(newCoupon.getGlobalUsageLimit());
+//            updatedCoupon.setStartDate(newCoupon.getStartDate());
+//            updatedCoupon.setExpiryDate(newCoupon.getExpiryDate());
+//            updatedCoupon.setCustomers(newCoupon.getCustomers());
+//
+//            coupons.add(updatedCoupon);
+//
+//            customerRepository.findById(customerId).get().setCoupons((Set<Coupon>) coupons);
+//        }
+//
+//        System.out.println("Updated Coupon :" + updatedCoupon);
+//
+//        System.out.println("Change"+customerRepository.findById(customerId).get());
+//
+//        return HttpStatus.OK;
+//    }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        @PostMapping("/customers")
     ResponseEntity<?> addNewCustomer (@Valid @RequestBody Customer newCustomer){
 
         EntityModel<Customer> entityModel = customerModelAssembler.toModel(customerRepository.save(newCustomer));
@@ -103,12 +144,11 @@ public class CustomerController {
 
         Customer updatedCustomer = customerRepository.findById(customerId)
                 .map(customer -> {
-                    customer.setCustomerId(newCustomer.getCustomerId());
-                    customer.setName(newCustomer.getName());
-                    customer.setCoupons((Set<Coupon>) newCustomer.getCoupons());
-                    return customerRepository.save(newCustomer);
+                    BeanUtils.copyProperties(newCustomer,customer);
+                    return customerRepository.save(customer);
                 })
                 .orElseGet(()->{
+                    System.out.println("get");
                     newCustomer.setCustomerId(customerId);
                     return customerRepository.save(newCustomer);
                 });
@@ -118,7 +158,6 @@ public class CustomerController {
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
-
     }
 
     @DeleteMapping("/customers/{customerId}")

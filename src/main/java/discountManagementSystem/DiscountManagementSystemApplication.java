@@ -1,16 +1,7 @@
 package discountManagementSystem;
 
-import discountManagementSystem._01entity.Coupon;
-import discountManagementSystem._01entity.Customer;
-import discountManagementSystem._02repository.CouponRepository;
-import discountManagementSystem._02repository.CustomerRepository;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import java.time.LocalDate;
-import java.util.Arrays;
 
 @SpringBootApplication
 public class DiscountManagementSystemApplication {

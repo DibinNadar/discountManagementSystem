@@ -1,4 +1,4 @@
-package discountManagementSystem.exception;
+package discountManagementSystem.customException.exception;
 
 public class VoucherNotFoundException extends RuntimeException {
 

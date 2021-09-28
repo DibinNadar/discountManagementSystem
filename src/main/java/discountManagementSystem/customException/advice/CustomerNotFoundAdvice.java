@@ -1,5 +1,6 @@
-package discountManagementSystem.exception;
+package discountManagementSystem.customException.advice;
 
+import discountManagementSystem.customException.exception.CustomerNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-//package discountManagementSystem._04api;
+//package discountManagementSystem.api;
 //
 //public class VoucherController {
 //}

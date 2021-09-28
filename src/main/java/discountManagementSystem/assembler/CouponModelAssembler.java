@@ -1,7 +1,7 @@
 package discountManagementSystem.assembler;
 
-import discountManagementSystem._04api.CouponController;
-import discountManagementSystem._01entity.Coupon;
+import discountManagementSystem.api.CouponController;
+import discountManagementSystem.entity.Coupon;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;

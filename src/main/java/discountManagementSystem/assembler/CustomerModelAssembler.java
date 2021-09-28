@@ -1,15 +1,10 @@
 package discountManagementSystem.assembler;
 
-import discountManagementSystem._01entity.Coupon;
-import discountManagementSystem._04api.CouponController;
-import discountManagementSystem._04api.CustomerController;
-import discountManagementSystem._01entity.Customer;
-import org.springframework.hateoas.CollectionModel;
+import discountManagementSystem.api.CustomerController;
+import discountManagementSystem.entity.Customer;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-
-import java.util.Collection;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
