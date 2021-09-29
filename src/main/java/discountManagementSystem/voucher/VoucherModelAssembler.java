@@ -1,7 +1,7 @@
 //package discountManagementSystem.assembler;
 //
-//import discountManagementSystem.api.VoucherController;
-//import discountManagementSystem.entity.Voucher;
+//import discountManagementSystem.voucher.Voucher;
+//import discountManagementSystem.voucher.VoucherController;
 //import org.springframework.hateoas.EntityModel;
 //import org.springframework.hateoas.server.RepresentationModelAssembler;
 //import org.springframework.stereotype.Component;

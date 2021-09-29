@@ -1,10 +1,9 @@
 package discountManagementSystem.api;
 
 import discountManagementSystem.assembler.CouponModelAssembler;
-import discountManagementSystem.repository.CouponRepository;
-import discountManagementSystem.entity.Coupon;
 import discountManagementSystem.customException.exception.CouponNotFoundException;
-import org.springframework.beans.BeanUtils;
+import discountManagementSystem.entity.Coupon;
+import discountManagementSystem.repository.CouponRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,35 @@ public class CouponController {
         return "This is the Coupon Home Page";
     }
 
-//    @PostMapping("/coupons") // TODO setMany()
+    @PostMapping("/coupon")
+    ResponseEntity<?> addNewCoupon (@Valid @RequestBody Coupon newCoupon){
+
+        EntityModel<Coupon> entityModel = couponAssembler.toModel(couponRepository.save(newCoupon));
+
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
+    }
+
+    @PostMapping("/coupons")
+    List<EntityModel<Coupon>> addMultipleNewCoupons(@Valid @RequestBody Coupon[] couponArrayList) {
+
+        List<EntityModel<Coupon>> response = new ArrayList<>();
+
+        for (Coupon coupon : couponArrayList) {
+            response.add(couponAssembler.toModel(couponRepository.save(coupon)));
+        }
+        return response;
+    }
+
+    @GetMapping("/coupon/{couponId}")
+    public EntityModel<Coupon> getOne(@PathVariable String couponId){
+
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(()->new CouponNotFoundException(couponId));
+
+        return couponAssembler.toModel(coupon);
+    }
 
     @GetMapping("/coupons")
     public CollectionModel<EntityModel<Coupon>> getAll(){
@@ -53,32 +81,22 @@ public class CouponController {
                 linkTo(methodOn(CouponController.class).getAll()).withSelfRel());
 
     }
-
-    @GetMapping("/coupons/{couponId}")
-    public EntityModel<Coupon> getOne(@PathVariable String couponId){
-
-        Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(()->new CouponNotFoundException(couponId));
-
-        return couponAssembler.toModel(coupon);
-    }
-
-    @PostMapping("/coupons")
-    ResponseEntity<?> addNewCoupon (@Valid @RequestBody Coupon newCoupon){
-
-        EntityModel<Coupon> entityModel = couponAssembler.toModel(couponRepository.save(newCoupon));
-
-        return ResponseEntity
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
-    }
-
-    @PutMapping("/coupons/{couponId}")
+    
+    @PutMapping("/coupon/{couponId}")
     ResponseEntity<?> updateCoupon(@Valid @RequestBody Coupon newCoupon, @PathVariable String couponId){
 
         Coupon updatedCoupon = couponRepository.findById(couponId)
                 .map(coupon -> {
-                    BeanUtils.copyProperties(newCoupon,coupon);
+//                    BeanUtils.copyProperties(newCoupon,coupon);  // TODO
+
+                    coupon.setCouponId(newCoupon.getCouponId());
+                    coupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
+                    coupon.setUpperAmountLimit(newCoupon.getUpperAmountLimit());
+                    coupon.setGlobalUsageLimit(newCoupon.getGlobalUsageLimit());
+                    coupon.setStartDate(newCoupon.getStartDate());
+                    coupon.setExpiryDate(newCoupon.getExpiryDate());
+                    coupon.setCustomers(newCoupon.getCustomers());
+
                     return couponRepository.save(newCoupon);
                 })
                 .orElseGet(()->{
@@ -94,9 +112,9 @@ public class CouponController {
 
     }
 
-    @DeleteMapping("/coupons/{couponId}")
-    ResponseEntity<?> deleteCoupon(@PathVariable String id){
-        couponRepository.deleteById(id);
+    @DeleteMapping("/coupon/{couponId}")
+    ResponseEntity<?> deleteCoupon(@PathVariable String couponId){
+        couponRepository.deleteById(couponId);
 
         return ResponseEntity.noContent().build();
     }

@@ -1,21 +1,20 @@
 package discountManagementSystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity (name = "customer")
 public class Customer implements Serializable {
 
     @Id
-    private Long customerId; // Phone
+    private Long customerId;
     @NotEmpty (message = "Customer Name is mandatory")
     private String name;
 
-    @JsonIgnore  // TODO: CHECK
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "customers_coupons",
             joinColumns = {
@@ -27,24 +26,32 @@ public class Customer implements Serializable {
                             nullable = false, updatable = false)})
     public Set<Coupon> coupons = new HashSet<>();
 
-
+//    @JsonIgnore  // TODO: CHECK
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+//    @JoinTable(name = "customers_vouchers",
+//            joinColumns = {
+////                                     name of Col                          taken from Col
+//                    @JoinColumn(name = "customerId", referencedColumnName = "customerId",
+//                            nullable = false, updatable = false)},
+//            inverseJoinColumns = {
+//                    @JoinColumn(name = "voucherId", referencedColumnName = "voucherId",
+//                            nullable = false, updatable = false)})
+//    public Set<Voucher> vouchers = new HashSet<>();
     public Customer() {
     }
-// TODO: copy Const
-//    public Customer(Customer source) {
-//        customerId = source.customerId;
-//        name = source.name;
-//        coupons = source.coupons;
-////        for (Coupon sourceCoupon : source.coupons) {
-////            coupons.add(new Coupon(sourceCoupon));
-////        }
-//    }
 
     public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons) {
         this.customerId = customerId;
         this.name = name;
         this.coupons = coupons;
     }
+
+//    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons, Set<Voucher> vouchers) {
+//        this.customerId = customerId;
+//        this.name = name;
+//        this.coupons = coupons;
+//        this.vouchers = vouchers;
+//    }
 
     public Long getCustomerId() {
         return customerId;
@@ -58,12 +65,19 @@ public class Customer implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    public Collection<Coupon> getCoupons() {
+    public Set<Coupon> getCoupons() {
         return coupons;
     }
     public void setCoupons(Set<Coupon> coupons) {
         this.coupons = coupons;
     }
+
+//    public Set<Voucher> getVouchers() {
+//        return vouchers;
+//    }
+//    public void setVouchers(Set<Voucher> vouchers) {
+//        this.vouchers = vouchers;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -72,12 +86,14 @@ public class Customer implements Serializable {
         Customer customer = (Customer) o;
         return Objects.equals(customerId, customer.customerId) &&
                 Objects.equals(name, customer.name) &&
+//                Objects.equals(vouchers, customer.vouchers) &&
                 Objects.equals(coupons, customer.coupons);
     }
 
-    @Override
+    @Override  // TODO: DO NOT HASH COUPONS!! Why does it break?
     public int hashCode() {
         return Objects.hash(customerId, name);
+//        return Objects.hash(customerId, name, coupons, vouchers);
     }
 
     @Override
@@ -86,6 +102,7 @@ public class Customer implements Serializable {
                 "customerId=" + customerId +
                 ", name='" + name + '\'' +
                 ", coupons=" + coupons +
+//                ", vouchers=" + vouchers +
                 '}';
     }
 }

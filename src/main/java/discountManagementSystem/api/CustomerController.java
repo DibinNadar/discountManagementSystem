@@ -1,11 +1,9 @@
 package discountManagementSystem.api;
 
-import discountManagementSystem.entity.Coupon;
-import discountManagementSystem.entity.Customer;
-import discountManagementSystem.repository.CouponRepository;
-import discountManagementSystem.repository.CustomerRepository;
 import discountManagementSystem.assembler.CustomerModelAssembler;
 import discountManagementSystem.customException.exception.CustomerNotFoundException;
+import discountManagementSystem.entity.Customer;
+import discountManagementSystem.repository.CustomerRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -15,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +26,6 @@ public class CustomerController {
     @Autowired
     private CustomerRepository customerRepository;  // Ideally service layer between controller and repo
 
-    @Autowired
-    private CouponRepository couponRepository;
-
     private CustomerModelAssembler customerModelAssembler;
 
     public CustomerController(CustomerRepository customerRepository, CustomerModelAssembler customerModelAssembler) {
@@ -38,15 +33,43 @@ public class CustomerController {
         this.customerModelAssembler = customerModelAssembler;
     }
 
-    @RequestMapping("/customer_home")
-    public String getHome(){
+    @RequestMapping("/customer/home")
+    public String getHome() {
         return "This is the Customer Home Page";
     }
 
-//    @PostMapping("/customer") // TODO setMany()
+    @PostMapping("/customer")
+    ResponseEntity<?> addNewCustomer(@Valid @RequestBody Customer newCustomer) {
+
+        EntityModel<Customer> entityModel = customerModelAssembler.toModel(customerRepository.save(newCustomer));
+
+        return ResponseEntity.
+                created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
+    }
+
+    @PostMapping("/customers")
+    List<EntityModel<Customer>> addMultipleNewCustomers(@Valid @RequestBody Customer[] customerArrayList) {
+
+        List<EntityModel<Customer>> response = new ArrayList<>();
+
+        for (Customer customer : customerArrayList) {
+            response.add(customerModelAssembler.toModel(customerRepository.save(customer)));
+        }
+        return response;
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public EntityModel<Customer> getOne(@PathVariable Long customerId) {
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+
+        return customerModelAssembler.toModel(customer);
+    }
 
     @GetMapping("/customers")
-    public CollectionModel<EntityModel<Customer>> getAll(){
+    public CollectionModel<EntityModel<Customer>> getAll() {
 
         List<EntityModel<Customer>> customerList =
                 customerRepository
@@ -60,31 +83,31 @@ public class CustomerController {
 
     }
 
-    @PutMapping("customers/{customerId}/coupons/{couponId}")
-    Customer addCouponToCustomer(@PathVariable String couponId, @PathVariable Long customerId) {
-        Customer customer = customerRepository.findById(customerId).get();
-        Coupon customerCoupon = new Coupon();
-        BeanUtils.copyProperties(couponRepository.findById(couponId).get(),customerCoupon);
-        customer.coupons.add(customerCoupon);
-        return customerRepository.save(customer);
+    @PutMapping("/customer/{customerId}")
+    ResponseEntity<?> updateCustomer(@Valid @RequestBody Customer newCustomer, @PathVariable Long customerId) {
+
+        Customer updatedCustomer = customerRepository.findById(customerId)
+                .map(customer -> {
+                    newCustomer.setCoupons(customer.getCoupons());
+                    BeanUtils.copyProperties(newCustomer, customer);
+                    return customerRepository.save(customer);
+                })
+                .orElseGet(() -> {
+                    newCustomer.setCustomerId(customerId);
+                    return customerRepository.save(newCustomer);
+                });
+
+        EntityModel<Customer> entityModel = customerModelAssembler.toModel(updatedCustomer);
+
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
-    @GetMapping("/customers/{customerId}")
-    public EntityModel<Customer> getOne(@PathVariable Long customerId){
+    @DeleteMapping("/customer/{customerId}")  // TODO: Enable delete
+    ResponseEntity<?> deleteCustomer(@PathVariable Long customerId) {customerRepository.deleteById(customerId);return ResponseEntity.noContent().build();}
 
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(()->new CustomerNotFoundException(customerId));
-
-        return customerModelAssembler.toModel(customer);
-    }
-
-// TODO: Make it return Links
-    @GetMapping("customers/{customerId}/coupons")
-    public Collection<Coupon> getCustomerCoupons( @PathVariable Long customerId){
-        Customer customer = customerRepository.findById(customerId).orElseThrow(()->new CustomerNotFoundException(customerId));
-        Collection<Coupon> coupons = customer.getCoupons();
-        return coupons;
-    }
+/**************************************************************************************************************/
 
     // TODO: AHH the Mistake, mostly to be added to Voucher
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,43 +151,30 @@ public class CustomerController {
 //        return HttpStatus.OK;
 //    }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************************/
+//    @Autowired
+//    private VoucherRepository voucherRepository;
 
-        @PostMapping("/customers")
-    ResponseEntity<?> addNewCustomer (@Valid @RequestBody Customer newCustomer){
+//    @PutMapping("customer/{customerId}/voucher/{voucherId}")
+//    Customer addVoucherToCustomer(@PathVariable String voucherId, @PathVariable Long customerId) {
+//        Customer customer = customerRepository.findById(customerId).get();
+//        Voucher customerVoucher = new Voucher();
+//        BeanUtils.copyProperties(voucherRepository.findById(voucherId).get(), customerVoucher);
+//        customer.vouchers.add(customerVoucher);
+//        return customerRepository.save(customer);
+//    }
 
-        EntityModel<Customer> entityModel = customerModelAssembler.toModel(customerRepository.save(newCustomer));
 
-        return ResponseEntity.
-                created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
-    }
+//    // TODO: Make it return Links
+//    @GetMapping("customer/{customerId}/vouchers")
+//    public Collection<Voucher> getCustomerVouchers(@PathVariable Long customerId) {
+//        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+//        Collection<Voucher> vouchers = customer.getVouchers();
+//        return vouchers;
+//    }
+/**************************************************************************************************************/
 
-    @PutMapping("/customers/{customerId}")
-    ResponseEntity<?> updateCustomer(@Valid @RequestBody Customer newCustomer, @PathVariable Long customerId){
+    // TODO:  vocher custoer extra fields
 
-        Customer updatedCustomer = customerRepository.findById(customerId)
-                .map(customer -> {
-                    BeanUtils.copyProperties(newCustomer,customer);
-                    return customerRepository.save(customer);
-                })
-                .orElseGet(()->{
-                    System.out.println("get");
-                    newCustomer.setCustomerId(customerId);
-                    return customerRepository.save(newCustomer);
-                });
-
-        EntityModel<Customer> entityModel = customerModelAssembler.toModel(updatedCustomer);
-
-        return ResponseEntity
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
-    }
-
-    @DeleteMapping("/customers/{customerId}")
-    ResponseEntity<?> deleteCustomer(@PathVariable Long id){
-        customerRepository.deleteById(id);
-
-        return ResponseEntity.noContent().build();
-    }
 
 }

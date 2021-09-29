@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table (name = "coupon")
+//@JsonIgnoreProperties({"hibernateLazyInitializerI", "handler", "customers"})
 public class Coupon implements Serializable {
 
     @Id
