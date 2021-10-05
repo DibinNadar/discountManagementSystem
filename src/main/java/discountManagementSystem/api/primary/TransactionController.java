@@ -1,8 +1,8 @@
-package discountManagementSystem.api;
+package discountManagementSystem.api.primary;
 
-import discountManagementSystem.entity.Transaction;
 import discountManagementSystem.assembler.TransactionModelAssembler;
 import discountManagementSystem.customException.exception.TransactionNotFoundException;
+import discountManagementSystem.entity.Transaction;
 import discountManagementSystem.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,38 +32,13 @@ public class TransactionController {
         this.transactionAssembler = transactionAssembler;
     }
 
-    @RequestMapping("/transactions/home")
+    @RequestMapping("/transaction/home")
     public String getHome(){
         return "This is the Transactions Home Page";
     }
 
-    //    @PostMapping("/transactions") // TODO setMany()
-
-    @GetMapping("/transactions")
-    public CollectionModel<EntityModel<Transaction>> getAll(){
-
-        List<EntityModel<Transaction>> transactionList =
-                transactionRepository
-                .findAll()
-                .stream()
-                .map(transactionAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(transactionList,
-                linkTo(methodOn(TransactionController.class).getAll()).withSelfRel());
-    }
-
-    @GetMapping("/transactions/{serialNo}")
-    public EntityModel<Transaction> getOne(@PathVariable Long serialNo){
-
-        Transaction transaction = transactionRepository.findById(serialNo)
-                .orElseThrow(()->new TransactionNotFoundException(serialNo));
-
-        return transactionAssembler.toModel(transaction);
-    }
-
-    @PostMapping("/transactions") // @Valid?
-    ResponseEntity<?> addNewTransaction (@Valid @RequestBody Transaction newTransaction){
+    @PostMapping("/transaction") // @Valid?
+    public ResponseEntity<?> addNewTransaction (@Valid @RequestBody Transaction newTransaction){
 
         EntityModel<Transaction> entityModel = transactionAssembler.toModel(transactionRepository.save(newTransaction));
 
@@ -71,6 +47,46 @@ public class TransactionController {
                 .body(entityModel);
     }
 
+    @PostMapping("/transactions")
+    List<EntityModel<Transaction>> addMultipleNewTransactions(@Valid @RequestBody Transaction[] transactionArrayList) {
+
+        List<EntityModel<Transaction>> response = new ArrayList<>();
+
+        for (Transaction transaction : transactionArrayList) {
+            response.add(transactionAssembler.toModel(transactionRepository.save(transaction)));
+        }
+        return response;
+    }
+
+    @GetMapping("/transaction/{serialNo}")
+    public EntityModel<Transaction> findById(@PathVariable Long serialNo){
+
+        Transaction transaction = transactionRepository.findById(serialNo)
+                .orElseThrow(()->new TransactionNotFoundException(serialNo));
+
+        return transactionAssembler.toModel(transaction);
+    }
+
+    @GetMapping("/transactions")
+    public CollectionModel<EntityModel<Transaction>> findAll(){
+
+        List<EntityModel<Transaction>> transactionList =
+                transactionRepository
+                .findAll()
+                .stream()
+                .map(transactionAssembler::toModel)
+                .collect(Collectors.toList());
+
+        if (transactionList.isEmpty()){
+            throw new TransactionNotFoundException(null);
+        }
+
+        return CollectionModel.of(transactionList,
+                linkTo(methodOn(TransactionController.class).findAll()).withSelfRel());
+    }
+
+
+    /***************************************************************************************************/
 //    @PutMapping("/transactions/{serialNo}") Updating Not Allowed!
 //    ResponseEntity<?> updateTransaction(@Valid @RequestBody Transaction newTransaction, @PathVariable Long serialNo){
 //
@@ -92,11 +108,11 @@ public class TransactionController {
 //
 //    }
 
-    @DeleteMapping("/transactions/{serialNo}")
-    ResponseEntity<?> deleteCoupon(@PathVariable Long serialNo){
-        transactionRepository.deleteById(serialNo);
-
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/transactions/{serialNo}") //  Not Allowed
+//    ResponseEntity<?> deleteCoupon(@PathVariable Long serialNo){
+//        transactionRepository.deleteById(serialNo);
+//        return ResponseEntity.noContent().build();
+//    }
+    /***************************************************************************************************/
 
 }

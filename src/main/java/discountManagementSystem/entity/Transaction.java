@@ -11,7 +11,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long serialNo;  // Auto
-    private Long userId;     // From C/V db
+    private Long customerId;     // From C/V db
     private String offerId;  // From C/V db
 //    private String couponId;
 //    private String voucherId;
@@ -23,11 +23,10 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long serialNo, Long userId, String offerId, LocalDate transactionDate, Double totalAmount, Double savedAmount) {
-        this.serialNo = serialNo;
-        this.userId = userId;
+    public Transaction(Long customerId, String offerId, LocalDate transactionDate, Double totalAmount, Double savedAmount) {
+        this.customerId = customerId;
         this.offerId = offerId;
-        this.transactionDate = transactionDate; //TODO: make it Real-Time?
+        this.transactionDate = transactionDate;
         this.totalAmount = totalAmount;
         this.savedAmount = savedAmount;
     }
@@ -35,14 +34,14 @@ public class Transaction {
     public Long getSerialNo() {
         return serialNo;
     }
-    public void setSerialNo(Long serialNo) {
-        this.serialNo = serialNo;
+//    public void setSerialNo(Long serialNo) {
+//        this.serialNo = serialNo;
+//    }
+    public Long getCustomerId() {
+        return customerId;
     }
-    public Long getUserId() {
-        return userId;
-    }
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
     public String getOfferId() {
         return offerId;
@@ -75,7 +74,7 @@ public class Transaction {
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
         return Objects.equals(serialNo, that.serialNo) &&
-                Objects.equals(userId, that.userId) &&
+                Objects.equals(customerId, that.customerId) &&
                 Objects.equals(offerId, that.offerId) &&
                 Objects.equals(transactionDate, that.transactionDate) &&
                 Objects.equals(totalAmount, that.totalAmount) &&
@@ -84,14 +83,14 @@ public class Transaction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(serialNo, userId, offerId, transactionDate, totalAmount, savedAmount);
+        return Objects.hash(serialNo, customerId, offerId, transactionDate, totalAmount, savedAmount);
     }
 
     @Override
     public String toString() {
         return "Transaction{" +
                 "serialNo=" + serialNo +
-                ", userId=" + userId +
+                ", userId=" + customerId +
                 ", offerId='" + offerId + '\'' +
                 ", transactionDate=" + transactionDate +
                 ", totalAmount=" + totalAmount +

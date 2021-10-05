@@ -26,7 +26,6 @@ public class Customer implements Serializable {
                             nullable = false, updatable = false)})
     public Set<Coupon> coupons = new HashSet<>();
 
-//    @JsonIgnore  // TODO: CHECK
 //    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 //    @JoinTable(name = "customers_vouchers",
 //            joinColumns = {
@@ -37,6 +36,7 @@ public class Customer implements Serializable {
 //                    @JoinColumn(name = "voucherId", referencedColumnName = "voucherId",
 //                            nullable = false, updatable = false)})
 //    public Set<Voucher> vouchers = new HashSet<>();
+
     public Customer() {
     }
 

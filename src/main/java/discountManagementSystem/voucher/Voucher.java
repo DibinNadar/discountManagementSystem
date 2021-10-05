@@ -11,7 +11,7 @@
 //@Entity
 //@Table (name = "voucher")
 //public class Voucher {
-//
+//    // TODO:  vocher custoer extra fields
 //    @Id
 //    private String voucherId;
 //    private Integer flatDiscount;

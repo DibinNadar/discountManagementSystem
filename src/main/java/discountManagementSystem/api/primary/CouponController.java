@@ -1,4 +1,4 @@
-package discountManagementSystem.api;
+package discountManagementSystem.api.primary;
 
 import discountManagementSystem.assembler.CouponModelAssembler;
 import discountManagementSystem.customException.exception.CouponNotFoundException;
@@ -59,7 +59,7 @@ public class CouponController {
     }
 
     @GetMapping("/coupon/{couponId}")
-    public EntityModel<Coupon> getOne(@PathVariable String couponId){
+    public EntityModel<Coupon> findById(@PathVariable String couponId){
 
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(()->new CouponNotFoundException(couponId));
@@ -68,7 +68,7 @@ public class CouponController {
     }
 
     @GetMapping("/coupons")
-    public CollectionModel<EntityModel<Coupon>> getAll(){
+    public CollectionModel<EntityModel<Coupon>> findAll(){
 
         List<EntityModel<Coupon>> couponList =
                 couponRepository
@@ -77,8 +77,12 @@ public class CouponController {
                 .map(couponAssembler::toModel)
                 .collect(Collectors.toList());
 
+        if (couponList.isEmpty()){
+            throw new CouponNotFoundException(null);
+        }
+
         return CollectionModel.of(couponList,
-                linkTo(methodOn(CouponController.class).getAll()).withSelfRel());
+                linkTo(methodOn(CouponController.class).findAll()).withSelfRel());
 
     }
     
@@ -86,19 +90,7 @@ public class CouponController {
     ResponseEntity<?> updateCoupon(@Valid @RequestBody Coupon newCoupon, @PathVariable String couponId){
 
         Coupon updatedCoupon = couponRepository.findById(couponId)
-                .map(coupon -> {
-//                    BeanUtils.copyProperties(newCoupon,coupon);  // TODO
-
-                    coupon.setCouponId(newCoupon.getCouponId());
-                    coupon.setPercentageDiscount(newCoupon.getPercentageDiscount());
-                    coupon.setUpperAmountLimit(newCoupon.getUpperAmountLimit());
-                    coupon.setGlobalUsageLimit(newCoupon.getGlobalUsageLimit());
-                    coupon.setStartDate(newCoupon.getStartDate());
-                    coupon.setExpiryDate(newCoupon.getExpiryDate());
-                    coupon.setCustomers(newCoupon.getCustomers());
-
-                    return couponRepository.save(newCoupon);
-                })
+                .map(coupon -> couponRepository.save(coupon))
                 .orElseGet(()->{
                     newCoupon.setCouponId(couponId);
                     return couponRepository.save(newCoupon);
