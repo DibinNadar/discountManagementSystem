@@ -32,11 +32,6 @@ public class CouponController {
         this.couponAssembler = couponAssembler;
     }
 
-    @RequestMapping("/coupon_home")
-    public String getHome(){
-        return "This is the Coupon Home Page";
-    }
-
     @PostMapping("/coupon")
     ResponseEntity<?> addNewCoupon (@Valid @RequestBody Coupon newCoupon){
 
@@ -104,10 +99,14 @@ public class CouponController {
 
     }
 
-    @DeleteMapping("/coupon/{couponId}")
+    @DeleteMapping("/coupon/{couponId}") // TODO Enable
     ResponseEntity<?> deleteCoupon(@PathVariable String couponId){
-        couponRepository.deleteById(couponId);
 
+        if (couponRepository.existsById(couponId)){
+            couponRepository.deleteById(couponId);
+        }else {
+            throw new CouponNotFoundException(couponId);
+        }
         return ResponseEntity.noContent().build();
     }
 

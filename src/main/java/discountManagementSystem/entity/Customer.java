@@ -10,6 +10,8 @@ import java.util.Set;
 @Entity (name = "customer")
 public class Customer implements Serializable {
 
+    //TODO Update for voucher
+
     @Id
     private Long customerId;
     @NotEmpty (message = "Customer Name is mandatory")

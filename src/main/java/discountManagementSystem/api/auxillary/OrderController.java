@@ -4,6 +4,7 @@ import discountManagementSystem.api.primary.CouponController;
 import discountManagementSystem.api.primary.CustomerController;
 import discountManagementSystem.api.primary.TransactionController;
 import discountManagementSystem.customException.exception.CouponNotFoundException;
+import discountManagementSystem.customException.exception.GlobalUsageExceededException;
 import discountManagementSystem.customException.exception.OfferNotFoundException;
 import discountManagementSystem.entity.Coupon;
 import discountManagementSystem.entity.Transaction;
@@ -18,9 +19,12 @@ import java.time.LocalDate;
 @RestController
 public class OrderController {
 
-
     @Autowired
     private CouponController couponController;
+
+//    TODO
+//    @Autowired
+//    private VoucherController voucherController;
 
     @Autowired
     private CustomerController customerController;
@@ -43,14 +47,18 @@ public class OrderController {
         try {
             coupon = couponController.findById(offerId).getContent();
         }catch (CouponNotFoundException ignored){}
-
 //        try {
 //            voucher = voucherController.findById(offerId).getContent();
 //        }catch (VoucherNotFoundException ignored){}
 
-
         if (coupon!=null){
             offerController.getOneCustomerCoupon(customerId,offerId); // Coupon validation
+            int globalUsageLimit = coupon.getGlobalUsageLimit();
+            if (globalUsageLimit<=0){
+                System.out.println("Sorry Global usage count has exceeded for offer :" + offerId);
+                throw new GlobalUsageExceededException(offerId);
+            }
+            coupon.setGlobalUsageLimit(globalUsageLimit-1);
             savedAmount = totalAmount * (coupon.getPercentageDiscount()/100.00);
         }
 //        else if (voucher!=null){
@@ -62,35 +70,8 @@ public class OrderController {
             throw new OfferNotFoundException(offerId);
         }
 
-
         Transaction transaction = new Transaction(customerId,offerId,LocalDate.now(),totalAmount, savedAmount);
 
         return transactionController.addNewTransaction(transaction);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -34,11 +34,6 @@ public class CustomerController {
         this.customerModelAssembler = customerModelAssembler;
     }
 
-    @RequestMapping("/customer/home")
-    public String getHome() {
-        return "This is the Customer Home Page";
-    }
-
     @PostMapping("/customer")
     ResponseEntity<?> addNewCustomer(@Valid @RequestBody Customer newCustomer) {
 
@@ -61,13 +56,11 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{customerId}")
-//    public Customer findById(@PathVariable Long customerId) {
     public EntityModel<Customer> findById(@PathVariable Long customerId) {
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
-//        return customer;
         return customerModelAssembler.toModel(customer);
     }
 
@@ -111,7 +104,15 @@ public class CustomerController {
                 .body(entityModel);
     }
 
-//    @DeleteMapping("/customer/{customerId}")  //  Enable delete
-//    ResponseEntity<?> deleteCustomer(@PathVariable Long customerId) {customerRepository.deleteById(customerId);return ResponseEntity.noContent().build();}
+    @DeleteMapping("/customer/{customerId}")  //  Enable delete
+    ResponseEntity<?> deleteCustomer(@PathVariable Long customerId) {
+
+        if (customerRepository.existsById(customerId)){
+            customerRepository.deleteById(customerId);
+        }else {
+            throw new CustomerNotFoundException(customerId);
+        }
+        return ResponseEntity.noContent().build();
+    }
 
 }

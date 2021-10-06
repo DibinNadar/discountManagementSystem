@@ -16,9 +16,9 @@ public class Coupon implements Serializable {
 
     @Id
     private String couponId;
-    private double percentageDiscount;  //TODO, make sure precision is maintained
+    private double percentageDiscount;
     private Integer upperAmountLimit;
-    private Integer globalUsageLimit;  // TODO: Add this limit to the database?
+    private Integer globalUsageLimit;
     private LocalDate startDate;
     private LocalDate expiryDate;
 

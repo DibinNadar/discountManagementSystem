@@ -10,15 +10,13 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long serialNo;  // Auto
-    private Long customerId;     // From C/V db
-    private String offerId;  // From C/V db
-//    private String couponId;
-//    private String voucherId;
-    private LocalDate transactionDate; // Auto
+    private Long serialNo;
+    private Long customerId;
+    private String offerId;
+    private LocalDate transactionDate;
 //    private OfferType offerType; // TODO: To be added later, maybe
-    private Double totalAmount;  // from orderPlacing mechanism
-    private Double savedAmount;  // from orderPlacing mechanism, assuming that I want it
+    private Double totalAmount;
+    private Double savedAmount;
 
     public Transaction() {
     }
@@ -34,7 +32,7 @@ public class Transaction {
     public Long getSerialNo() {
         return serialNo;
     }
-//    public void setSerialNo(Long serialNo) {
+//    public void setSerialNo(Long serialNo) {  Not wanted
 //        this.serialNo = serialNo;
 //    }
     public Long getCustomerId() {

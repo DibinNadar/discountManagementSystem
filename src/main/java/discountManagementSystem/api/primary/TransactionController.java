@@ -32,12 +32,7 @@ public class TransactionController {
         this.transactionAssembler = transactionAssembler;
     }
 
-    @RequestMapping("/transaction/home")
-    public String getHome(){
-        return "This is the Transactions Home Page";
-    }
-
-    @PostMapping("/transaction") // @Valid?
+    @PostMapping("/transaction")
     public ResponseEntity<?> addNewTransaction (@Valid @RequestBody Transaction newTransaction){
 
         EntityModel<Transaction> entityModel = transactionAssembler.toModel(transactionRepository.save(newTransaction));

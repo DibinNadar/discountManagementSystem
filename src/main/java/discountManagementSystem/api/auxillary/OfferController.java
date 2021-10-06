@@ -29,6 +29,10 @@ public class OfferController {
     @Autowired
     private CouponRepository couponRepository;
 
+    // TODO
+//    @Autowired
+//    private VoucherRepository voucherRepository;
+
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -45,6 +49,33 @@ public class OfferController {
         customer.coupons.add(customerCoupon);
         return customerRepository.save(customer);
     }
+    // TODO: Voucher addVoucherToCustomer
+//    @PutMapping("customer/{customerId}/voucher/{voucherId}")
+//    Customer addVoucherToCustomer(@PathVariable String voucherId, @PathVariable Long customerId) {
+//        Customer customer = customerRepository.findById(customerId).get();
+//        Voucher customerVoucher = new Voucher();
+//        BeanUtils.copyProperties(voucherRepository.findById(voucherId).get(), customerVoucher);
+//        customer.vouchers.add(customerVoucher);
+//        return customerRepository.save(customer);
+//    }
+
+
+    @GetMapping("/customer/{customerId}/coupons")
+    public CollectionModel<Coupon> getCustomerCoupons(@PathVariable Long customerId) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+        Collection<Coupon> coupons = customer.getCoupons();
+
+        return CollectionModel.of(coupons,
+                linkTo(methodOn(CustomerController.class).findById(customerId)).withRel(customer.getName()),
+                linkTo(methodOn(OfferController.class).getCustomerCoupons(customerId)).withRel(customer.getName()+"'s Coupons"));
+    }
+    // TODO: Voucher getCustomerVoucher
+//    @GetMapping("customer/{customerId}/vouchers")
+//    public Collection<Voucher> getCustomerVouchers(@PathVariable Long customerId) {
+//        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+//        Collection<Voucher> vouchers = customer.getVouchers();
+//        return vouchers;
+//    }
 
     @GetMapping("/customer/{customerId}/coupon/{couponId}")
     public EntityModel<Coupon> getOneCustomerCoupon(@PathVariable Long customerId, @PathVariable String couponId) {
@@ -61,18 +92,9 @@ public class OfferController {
                 linkTo(methodOn(CouponController.class).findById(couponId)).withRel("coupon"),
                 linkTo(methodOn(OfferController.class).getCustomerCoupons(customerId)).withRel(customer.getName()+"'s coupons"));
     }
+    // TODO: Voucher getOneCustomerVoucher
 
-    @GetMapping("/customer/{customerId}/coupons")
-    public CollectionModel<Coupon> getCustomerCoupons(@PathVariable Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-        Collection<Coupon> coupons = customer.getCoupons();
-
-        return CollectionModel.of(coupons,
-                linkTo(methodOn(CustomerController.class).findById(customerId)).withRel(customer.getName()),
-                linkTo(methodOn(OfferController.class).getCustomerCoupons(customerId)).withRel(customer.getName()+"'s Coupons"));
-    }
-
-    @DeleteMapping("/customer/{customerId}/coupon/{couponId}")  // TODO: Enable delete
+    @DeleteMapping("/customer/{customerId}/coupon/{couponId}")  // TODO: Enable delete or remove this method?
     ResponseEntity<?> deleteCustomerCoupon(@PathVariable String couponId, @PathVariable Long customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(()->new CustomerNotFoundException(customerId));
         Set<Coupon> couponSet = customer.getCoupons();
@@ -88,28 +110,12 @@ public class OfferController {
     }
 
 
-//    @Autowired
-//    private VoucherRepository voucherRepository;
-
-//    @PutMapping("customer/{customerId}/voucher/{voucherId}")
-//    Customer addVoucherToCustomer(@PathVariable String voucherId, @PathVariable Long customerId) {
-//        Customer customer = customerRepository.findById(customerId).get();
-//        Voucher customerVoucher = new Voucher();
-//        BeanUtils.copyProperties(voucherRepository.findById(voucherId).get(), customerVoucher);
-//        customer.vouchers.add(customerVoucher);
-//        return customerRepository.save(customer);
-//    }
 
 
-//    @GetMapping("customer/{customerId}/vouchers")
-//    public Collection<Voucher> getCustomerVouchers(@PathVariable Long customerId) {
-//        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-//        Collection<Voucher> vouchers = customer.getVouchers();
-//        return vouchers;
-//    }
 
 
-    // TODO: AHH the Mistake, mostly to be added to Voucher
+
+    // TODO: AHH the Mistake, mostly to be added to Voucher, updateCustomerVoucher
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //    @PutMapping("customers/{customerId}/customer_coupons/{couponId}")
 //    HttpStatus updateCustomerCoupon(@Valid @RequestBody Coupon newCoupon,  @PathVariable Long customerId , @PathVariable String couponId){
