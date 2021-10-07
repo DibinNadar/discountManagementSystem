@@ -4,13 +4,10 @@ import discountManagementSystem.api.primary.CouponController;
 import discountManagementSystem.api.primary.CustomerController;
 import discountManagementSystem.api.primary.TransactionController;
 import discountManagementSystem.api.primary.VoucherController;
-import discountManagementSystem.customException.exception.CouponNotFoundException;
-import discountManagementSystem.customException.exception.GlobalUsageExceededException;
-import discountManagementSystem.customException.exception.OfferNotFoundException;
-import discountManagementSystem.customException.exception.VoucherNotFoundException;
+import discountManagementSystem.customException.exception.*;
 import discountManagementSystem.entity.Coupon;
+import discountManagementSystem.entity.CustomerVoucher;
 import discountManagementSystem.entity.Transaction;
-import discountManagementSystem.entity.Voucher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,17 +38,33 @@ public class OrderController {
     @RequestMapping("/order/{customerId}/{offerId}/{totalAmount}")
     public ResponseEntity<?> placeOrder(@PathVariable Long customerId, @PathVariable String offerId, @PathVariable Double totalAmount){
 
+        if (totalAmount<0){
+            throw new IllegalTotalAmountException(totalAmount);
+        }
+
         Coupon coupon = null;
-        Voucher voucher = null;
+//        Voucher voucher = null;
+        CustomerVoucher customerVoucher = null;
+        Long voucherSerial = null;
+        Boolean voucherFlag = false;
+
+        try {
+            voucherSerial =Long.parseLong(offerId);
+            voucherFlag = true;
+        }catch (NumberFormatException ignored){
+        }
 
         Double savedAmount;
 
         try {
             coupon = couponController.findById(offerId).getContent();
         }catch (CouponNotFoundException ignored){}
+
+        if (voucherFlag){
         try {
-            voucher = voucherController.findById(offerId).getContent();
-        }catch (VoucherNotFoundException ignored){}
+            customerVoucher = offerController.getOneCustomerVoucher(customerId,voucherSerial).getContent();
+        }catch (VoucherNotFoundException | IllegalArgumentException ignored){}
+        }
 
         if (coupon!=null){
             offerController.getOneCustomerCoupon(customerId,offerId); // Coupon validation
@@ -63,12 +76,18 @@ public class OrderController {
             coupon.setGlobalUsageLimit(globalUsageLimit-1);
             savedAmount = totalAmount * (coupon.getPercentageDiscount()/100.00);
         }
-//        else if (voucher!=null){ //TODO Test and add savedAmount
-//        offerController.getOneCustomerVoucher(customerId,offerId); // Voucher validation
-//            System.out.println("Voucher1111111");
-//        }
+        else if (customerVoucher!=null){
+        offerController.getOneCustomerVoucher(customerId,voucherSerial); // Voucher validation
+            Double remainingVoucherAmount = customerVoucher.getRemainingAmount();
+            if (totalAmount>=remainingVoucherAmount){
+                savedAmount = remainingVoucherAmount;
+                customerVoucher.setRemainingAmount(0.0);
+            }else {
+                savedAmount = totalAmount;
+                customerVoucher.setRemainingAmount(remainingVoucherAmount-totalAmount);
+            }
+        }
         else {
-            System.out.println("INVALIDDDDDO");
             throw new OfferNotFoundException(offerId);
         }
 

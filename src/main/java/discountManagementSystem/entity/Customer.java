@@ -1,5 +1,7 @@
 package discountManagementSystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -11,20 +13,12 @@ import java.util.Set;
 public class Customer implements Serializable {
 
 
-
-// TODO:  voucher customer extra fields
-    /**
-     customers_vouchers
-     Start/End
-     amountRemainig
-     **/
-
-
     @Id
     private Long customerId;
     @NotEmpty (message = "Customer Name is mandatory")
     private String name;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "customers_coupons",
             joinColumns = {
@@ -36,26 +30,20 @@ public class Customer implements Serializable {
                             nullable = false, updatable = false)})
     public Set<Coupon> coupons = new HashSet<>();
 
-    //TODO Lookie here
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = "customers_vouchers",
-            joinColumns = {
-//                                     name of Col                          taken from Col
-                    @JoinColumn(name = "customerId", referencedColumnName = "customerId",
-                            nullable = false, updatable = false)},
-            inverseJoinColumns = {
-                    @JoinColumn(name = "voucherId", referencedColumnName = "voucherId",
-                            nullable = false, updatable = false)})
-    public Set<Voucher> vouchers = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer",fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    public Set<CustomerVoucher> customers_vouchers = new HashSet<>();
+
 
     public Customer() {
     }
 
-    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons, Set<Voucher> vouchers) {
+    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons, Set<CustomerVoucher> customers_vouchers) {
         this.customerId = customerId;
         this.name = name;
         this.coupons = coupons;
-        this.vouchers = vouchers;
+        this.customers_vouchers = customers_vouchers;
     }
 
     public Long getCustomerId() {
@@ -77,11 +65,11 @@ public class Customer implements Serializable {
         this.coupons = coupons;
     }
 
-    public Set<Voucher> getVouchers() {
-        return vouchers;
+    public Set<CustomerVoucher> getCustomers_vouchers() {
+        return customers_vouchers;
     }
-    public void setVouchers(Set<Voucher> vouchers) {
-        this.vouchers = vouchers;
+    public void setCustomers_vouchers(Set<CustomerVoucher> customers_vouchers) {
+        this.customers_vouchers = customers_vouchers;
     }
 
     @Override
@@ -91,7 +79,7 @@ public class Customer implements Serializable {
         Customer customer = (Customer) o;
         return Objects.equals(customerId, customer.customerId) &&
                 Objects.equals(name, customer.name) &&
-                Objects.equals(vouchers, customer.vouchers) &&
+                Objects.equals(customers_vouchers, customer.customers_vouchers) &&
                 Objects.equals(coupons, customer.coupons);
     }
 
@@ -107,8 +95,7 @@ public class Customer implements Serializable {
                 "customerId=" + customerId +
                 ", name='" + name + '\'' +
                 ", coupons=" + coupons +
-                ", vouchers=" + vouchers +
+                ", vouchers=" + customers_vouchers +
                 '}';
     }
 }
-//TODO comment cleanup

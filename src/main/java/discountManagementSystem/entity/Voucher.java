@@ -12,19 +12,19 @@ import java.util.Set;
 public class Voucher {
     @Id
     private String voucherId;
-    private Integer flatDiscount;
+    private Double flatDiscount;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "vouchers", fetch = FetchType.LAZY)
-    private Set<Customer> customers = new HashSet<>();
+    @OneToMany(mappedBy = "voucher",fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    public Set<CustomerVoucher> customers_vouchers = new HashSet<>();
 
     public Voucher() {
     }
 
-    public Voucher(String voucherId, Integer flatDiscount, Set<Customer> customers) {
+    public Voucher(String voucherId, Double flatDiscount, Set<CustomerVoucher> customers_vouchers) {
         this.voucherId = voucherId;
         this.flatDiscount = flatDiscount;
-        this.customers = customers;
+        this.customers_vouchers = customers_vouchers;
     }
 
     public String getVoucherId() {
@@ -33,17 +33,17 @@ public class Voucher {
     public void setVoucherId(String voucherId) {
         this.voucherId = voucherId;
     }
-    public Integer getFlatDiscount() {
+    public Double getFlatDiscount() {
         return flatDiscount;
     }
-    public void setFlatDiscount(Integer flatDiscount) {
+    public void setFlatDiscount(Double flatDiscount) {
         this.flatDiscount = flatDiscount;
     }
-    public Set<Customer> getCustomers() {
-        return customers;
+    public Set<CustomerVoucher> getCustomers_vouchers() {
+        return customers_vouchers;
     }
-    public void setCustomers(Set<Customer> customers) {
-        this.customers = customers;
+    public void setCustomers_vouchers(Set<CustomerVoucher> customers_vouchers) {
+        this.customers_vouchers = customers_vouchers;
     }
 
     @Override
@@ -53,12 +53,12 @@ public class Voucher {
         Voucher voucher = (Voucher) o;
         return Objects.equals(voucherId, voucher.voucherId) &&
                 Objects.equals(flatDiscount, voucher.flatDiscount) &&
-                Objects.equals(customers, voucher.customers);
+                Objects.equals(customers_vouchers, voucher.customers_vouchers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(voucherId, flatDiscount, customers);
+        return Objects.hash(voucherId, flatDiscount, customers_vouchers);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Voucher {
         return "Voucher{" +
                 "voucherId='" + voucherId + '\'' +
                 ", flatDiscount=" + flatDiscount +
-                ", customers=" + customers +
+                ", customers=" + customers_vouchers +
                 '}';
     }
 }

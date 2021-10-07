@@ -4,7 +4,7 @@ public class CustomerVoucherNotFoundException extends RuntimeException {
 
     private static final Long serialVersionUID = 1L;
 
-    public CustomerVoucherNotFoundException(Long customerId, String voucherId){
-        super("Could not Find Voucher:" + voucherId+" for Customer "+customerId);
+    public CustomerVoucherNotFoundException(Long customerId, Long serialNo){
+        super("Could not Find Serial No "+serialNo+" for Customer "+customerId);
     }
 }

@@ -1,7 +1,6 @@
 package discountManagementSystem.api.primary;
 
 import discountManagementSystem.assembler.CustomerModelAssembler;
-import discountManagementSystem.customException.exception.CouponNotFoundException;
 import discountManagementSystem.customException.exception.CustomerNotFoundException;
 import discountManagementSystem.entity.Customer;
 import discountManagementSystem.repository.CustomerRepository;
@@ -75,9 +74,8 @@ public class CustomerController {
                         .collect(Collectors.toList());
 
         if (customerList.isEmpty()){
-            throw new CouponNotFoundException(null);
+            throw new CustomerNotFoundException(null);
         }
-
         return CollectionModel.of(customerList,
                 linkTo(methodOn(CustomerController.class).findAll()).withSelfRel());
 

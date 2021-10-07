@@ -22,8 +22,6 @@ public class CustomerModelAssembler implements RepresentationModelAssembler<Cust
                 linkTo(methodOn(OfferController.class).getCustomerCoupons(entity.getCustomerId())).withRel(entity.getName()+"'s Coupons"),
                 linkTo(methodOn(OfferController.class).getCustomerVouchers(entity.getCustomerId())).withRel(entity.getName()+"'s Vouchers"),
                 linkTo(methodOn(CustomerController.class).findAll()).withRel("Customer List"));
-
-
     }
 
 }
