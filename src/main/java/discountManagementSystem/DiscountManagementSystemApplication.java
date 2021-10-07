@@ -3,6 +3,7 @@ package discountManagementSystem;
 import discountManagementSystem.entity.Coupon;
 import discountManagementSystem.entity.Customer;
 import discountManagementSystem.entity.Transaction;
+import discountManagementSystem.entity.Voucher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ public class DiscountManagementSystemApplication {
 	public RepositoryRestConfigurer repositoryRestConfigurer()
 	{
 		return RepositoryRestConfigurer.withConfig(config -> {
-			config.exposeIdsFor(Coupon.class, Customer.class, Transaction.class);
+			config.exposeIdsFor(Coupon.class, Voucher.class, Customer.class, Transaction.class);
 		});
 	}
 

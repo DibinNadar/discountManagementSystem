@@ -10,7 +10,15 @@ import java.util.Set;
 @Entity (name = "customer")
 public class Customer implements Serializable {
 
-    //TODO Update for voucher
+
+
+// TODO:  voucher customer extra fields
+    /**
+     customers_vouchers
+     Start/End
+     amountRemainig
+     **/
+
 
     @Id
     private Long customerId;
@@ -28,32 +36,27 @@ public class Customer implements Serializable {
                             nullable = false, updatable = false)})
     public Set<Coupon> coupons = new HashSet<>();
 
-//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-//    @JoinTable(name = "customers_vouchers",
-//            joinColumns = {
-////                                     name of Col                          taken from Col
-//                    @JoinColumn(name = "customerId", referencedColumnName = "customerId",
-//                            nullable = false, updatable = false)},
-//            inverseJoinColumns = {
-//                    @JoinColumn(name = "voucherId", referencedColumnName = "voucherId",
-//                            nullable = false, updatable = false)})
-//    public Set<Voucher> vouchers = new HashSet<>();
+    //TODO Lookie here
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "customers_vouchers",
+            joinColumns = {
+//                                     name of Col                          taken from Col
+                    @JoinColumn(name = "customerId", referencedColumnName = "customerId",
+                            nullable = false, updatable = false)},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "voucherId", referencedColumnName = "voucherId",
+                            nullable = false, updatable = false)})
+    public Set<Voucher> vouchers = new HashSet<>();
 
     public Customer() {
     }
 
-    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons) {
+    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons, Set<Voucher> vouchers) {
         this.customerId = customerId;
         this.name = name;
         this.coupons = coupons;
+        this.vouchers = vouchers;
     }
-
-//    public Customer(Long customerId, @NotEmpty(message = "Customer Name is mandatory") String name, Set<Coupon> coupons, Set<Voucher> vouchers) {
-//        this.customerId = customerId;
-//        this.name = name;
-//        this.coupons = coupons;
-//        this.vouchers = vouchers;
-//    }
 
     public Long getCustomerId() {
         return customerId;
@@ -74,12 +77,12 @@ public class Customer implements Serializable {
         this.coupons = coupons;
     }
 
-//    public Set<Voucher> getVouchers() {
-//        return vouchers;
-//    }
-//    public void setVouchers(Set<Voucher> vouchers) {
-//        this.vouchers = vouchers;
-//    }
+    public Set<Voucher> getVouchers() {
+        return vouchers;
+    }
+    public void setVouchers(Set<Voucher> vouchers) {
+        this.vouchers = vouchers;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -88,7 +91,7 @@ public class Customer implements Serializable {
         Customer customer = (Customer) o;
         return Objects.equals(customerId, customer.customerId) &&
                 Objects.equals(name, customer.name) &&
-//                Objects.equals(vouchers, customer.vouchers) &&
+                Objects.equals(vouchers, customer.vouchers) &&
                 Objects.equals(coupons, customer.coupons);
     }
 
@@ -104,7 +107,8 @@ public class Customer implements Serializable {
                 "customerId=" + customerId +
                 ", name='" + name + '\'' +
                 ", coupons=" + coupons +
-//                ", vouchers=" + vouchers +
+                ", vouchers=" + vouchers +
                 '}';
     }
 }
+//TODO comment cleanup

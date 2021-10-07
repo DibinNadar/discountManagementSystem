@@ -99,15 +99,15 @@ public class CouponController {
 
     }
 
-    @DeleteMapping("/coupon/{couponId}") // TODO Enable
-    ResponseEntity<?> deleteCoupon(@PathVariable String couponId){
-
-        if (couponRepository.existsById(couponId)){
-            couponRepository.deleteById(couponId);
-        }else {
-            throw new CouponNotFoundException(couponId);
-        }
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/coupon/{couponId}") // Not Allowed
+//    ResponseEntity<?> deleteCoupon(@PathVariable String couponId){
+//
+//        if (couponRepository.existsById(couponId)){
+//            couponRepository.deleteById(couponId);
+//        }else {
+//            throw new CouponNotFoundException(couponId);
+//        }
+//        return ResponseEntity.noContent().build();
+//    }
 
 }
